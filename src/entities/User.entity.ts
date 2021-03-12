@@ -11,11 +11,11 @@ import { AccessControl } from 'accesscontrol';
 const ac = new AccessControl();
 
 const access = ac
-  .grant('User') // define new or modify existing role. also takes an array.
+  .grant('User')
   .deleteOwn('User')
-  .grant('Admin') // switch to another role without breaking the chain
-  .extend('User') // inherit role capabilities. also takes an array
-  .updateAny('User') // explicitly defined attributes
+  .grant('Admin')
+  .extend('User')
+  .updateAny('User')
   .deleteAny('User');
 
 @Entity()
