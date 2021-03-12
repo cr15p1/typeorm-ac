@@ -1,0 +1,12 @@
+{
+  "watch": [
+    "src"
+  ],
+  "ignore": [
+    "node_modules"
+  ],
+  "exec": "ts-node --project tsconfig.json",
+  "events": {
+    "start": "yarn lint"
+  }
+}

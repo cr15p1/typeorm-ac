@@ -1,0 +1,16 @@
+{
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true
+  },
+  "eslint.codeActionsOnSave.mode": "all",
+  "eslint.validate": [
+    "typescript",
+    "typescirptreact",
+    "javascript",
+    "javascriptreact"
+  ],
+  "eslint.workingDirectories": ["./src"],
+  "eslint.format.enable": true,
+  "editor.tabSize": 2
+}
