@@ -21,11 +21,20 @@ const app = express();
   });
 
   app.use((req, res, next) => {
-    (req as any).user = { id: '604b0eb25eaeae49f3bfe704' };
+    (req as any).user = {
+      id: '604b0eb25eaeae49f3bfe704',
+      role: 'Reviewer',
+    };
     next();
   });
 
-  app.use(middleware({ userIdPath: 'req.user.id' }));
+  app.use(
+    middleware({
+      userIdPath: 'req.user.id',
+      userRolePath: 'req.user.role',
+      owner: 'Owner',
+    }),
+  );
 
   const server = new ApolloServer({
     schema,

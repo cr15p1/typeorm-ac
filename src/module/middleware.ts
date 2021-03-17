@@ -3,7 +3,7 @@ import { MiddlewareNotProvided } from '../decorators/error';
 import { executionAsyncResource, createHook } from 'async_hooks';
 import { nanoid } from 'nanoid';
 import { MikroORM } from '@mikro-orm/core/MikroORM';
-import { setOrm } from './metadata';
+import { getAcRepository, setOrm } from './metadata';
 import { Configuration } from '@mikro-orm/core';
 import { MiddlewareOptions, ScopedStorage } from './types';
 import { AccessControl } from 'accesscontrol/lib/AccessControl';
@@ -52,21 +52,38 @@ createHook({
   },
 }).enable();
 
-export const middleware: (
-  options: MiddlewareOptions,
-) => RequestHandler = ({ userIdPath }) => (req, res, next) => {
-  const storage = { req, res, userId: '' };
-  storage.userId = userIdPath
+const getValueByPath = (a: any, path: string) => {
+  return path
     .split('.')
-    .reduce((prev, curr) => (prev as any)[curr], storage) as any;
-  (executionAsyncResource() as any)[sym] = storage;
-  next();
+    .reduce((prev, curr) => (prev as any)[curr], a);
 };
 
 export const getScopedStorage = (): ScopedStorage => {
   const asyncResource = (executionAsyncResource() as any)[sym];
   if (asyncResource === undefined) throw new MiddlewareNotProvided();
   return asyncResource;
+};
+
+export const middleware: (
+  options: MiddlewareOptions,
+) => RequestHandler = ({ userIdPath, userRolePath, owner }) => async (
+  req,
+  res,
+  next,
+) => {
+  const acRepository = await getAcRepository();
+  const storage: ScopedStorage = {
+    req,
+    res,
+    owner: owner,
+  };
+  storage.userId = getValueByPath(storage, userIdPath);
+  storage.userRole = getValueByPath(storage, userRolePath);
+  storage.userRights = await acRepository.find({
+    userId: storage.userId,
+  });
+  (executionAsyncResource() as any)[sym] = storage;
+  next();
 };
 
 export default middleware;

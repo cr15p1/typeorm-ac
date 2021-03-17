@@ -1,4 +1,3 @@
-import { ObjectId } from 'bson';
 import { getAcRepository } from '../metadata';
 import { getScopedStorage } from '../middleware';
 const create = async (
@@ -12,8 +11,6 @@ const create = async (
     targetId: parentId,
     userId: storage.userId,
   };
-  console.log(find);
-  console.log(await acRepository.findOne(find));
   throw new Error('no access');
 };
 

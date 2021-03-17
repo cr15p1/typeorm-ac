@@ -1,11 +1,11 @@
 import { MetadataStorage } from '@mikro-orm/core/metadata/MetadataStorage';
 import { AnyEntity } from '@mikro-orm/core/typings';
-import { ObjectId } from 'mongodb';
-import { addTarget, getAcRepository } from '../metadata';
+import { addTarget } from '../metadata';
 import { getScopedStorage } from '../middleware';
 import { ACGroupOptions } from '../types';
 import grant from '../utils/grant';
-import rejectAll from '../utils/rejectAll';
+import userRole from '../utils/userRole';
+import revokeAll from '../utils/revokeAll';
 import validateAuthorization from '../utils/validateAuthorization';
 
 const findId = (
@@ -40,11 +40,10 @@ export const ACGroup = ({
   return <T extends new () => unknown>(target: T): T => {
     const afterCreateKey = 'acGroupAfterCreateMethod';
     const afterDeleteKey = 'acGroupAfterDeleteMethod';
-    const beforeCreateKey = 'acGroupBeforeDeleteKey';
-    const beforeUpdateKey = 'acGroupBeforeUpdateKey';
-    const beforeDeleteKey = 'acGroupBeforeDeleteKey';
-
-    addTarget(target, childOf);
+    const onInitKey = 'acGroupOnInitMethod';
+    const beforeCreateKey = 'acGroupBeforeDeleteMethod';
+    const beforeUpdateKey = 'acGroupBeforeUpdateMethod';
+    const beforeDeleteKey = 'acGroupBeforeDeleteMethod';
 
     Reflect.defineProperty(target.prototype, beforeCreateKey, {
       get: () => {
@@ -65,10 +64,63 @@ export const ACGroup = ({
       },
     });
 
+    Reflect.defineProperty(target.prototype, onInitKey, {
+      get: function () {
+        return function (this: AnyEntity) {
+          const { userId, userRights, userRole } = getScopedStorage();
+          const targetId = findId(this, primaryKey);
+
+          console.log(userRights, target.name, targetId);
+
+          const right = userRights?.find(
+            (right) =>
+              right.target === target.name &&
+              String(right.targetId) === String(targetId),
+          );
+
+          if (!right?.role && !userRole) {
+            throw new Error(
+              `user ${userId} has no role for entity ${targetId}`,
+            );
+          }
+
+          let canReadAny: boolean | void | undefined | '';
+          try {
+            canReadAny =
+              right &&
+              access.can(right.role).readAny(target.name).granted;
+          } catch (e) {
+            console.log(e);
+          }
+
+          let canReadOwn: boolean | void | undefined | '';
+          try {
+            canReadOwn =
+              right &&
+              access.can(right.role).readOwn(target.name).granted;
+          } catch (e) {
+            console.log(e);
+          }
+
+          console.log(
+            'canReadOwn:',
+            canReadOwn,
+            'canReadAny:',
+            canReadAny,
+          );
+          if (!canReadOwn && !canReadAny) {
+            throw new Error(
+              `user ${userId} has no read access to the entity ${target.name} with id ${targetId}`,
+            );
+          }
+        };
+      },
+    });
+
     Reflect.defineProperty(target.prototype, afterDeleteKey, {
       get: () => {
         return async function (this: AnyEntity) {
-          await rejectAll({
+          await revokeAll({
             targetId: findId(this, primaryKey),
           });
         };
@@ -98,8 +150,11 @@ export const ACGroup = ({
       target,
     );
 
-    hooks.beforeCreate = hooks.beforeCreate || [];
+    hooks.beforeCreate = hooks.beforeCreate || ([] as []);
     hooks.beforeCreate.push((beforeCreateKey as unknown) as never);
+
+    hooks.onInit = hooks.onInit || ([] as []);
+    hooks.onInit.push((onInitKey as unknown) as never);
 
     hooks.beforeUpdate = hooks.beforeUpdate || [];
     hooks.beforeUpdate.push((beforeUpdateKey as unknown) as never);

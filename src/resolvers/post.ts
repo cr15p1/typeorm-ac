@@ -1,5 +1,5 @@
 import { EntityRepository } from '@mikro-orm/core/entity/EntityRepository';
-import { ObjectID } from 'mongodb';
+import { ObjectId, ObjectID } from 'mongodb';
 import {
   Arg,
   Field,
@@ -10,6 +10,7 @@ import {
   Resolver,
 } from 'type-graphql';
 import Post from '../entities/Post.entity';
+import grantedIds from '../module/utils/grantedIds';
 import Repo from '../Repo';
 
 @InputType()
@@ -35,7 +36,8 @@ class PostResolver {
 
   @Query(() => [Post])
   async posts(): Promise<Post[]> {
-    return await this.postRepository.find({});
+    const ids = await grantedIds<ObjectId>(Post);
+    return await this.postRepository.find({ _id: { $in: ids } }, {});
   }
 
   @Mutation(() => Post)

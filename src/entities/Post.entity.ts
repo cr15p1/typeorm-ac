@@ -9,9 +9,9 @@ import { PrimaryKey } from '@mikro-orm/core/decorators/PrimaryKey';
 import { ACGroup } from '../module/decorators';
 import { AccessControl } from 'accesscontrol';
 
-const ac = new AccessControl();
+const access = new AccessControl();
 
-const access = ac
+access
   .grant('User')
   .deleteOwn('Post')
   .grant('Admin')

@@ -1,4 +1,3 @@
-import { ObjectId } from '@mikro-orm/mongodb';
 import {
   Arg,
   Field,
@@ -12,7 +11,7 @@ import Category from '../entities/Category.entity';
 @InputType()
 class CategoryInput implements Partial<Category> {
   @Field()
-  title: string;
+  title!: string;
 }
 
 @Resolver()

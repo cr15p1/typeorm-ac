@@ -1,7 +1,7 @@
 import { getAcRepository } from '../metadata';
 import { RejectOptions } from '../types';
 
-const reject = async ({
+const revoke = async ({
   targetId,
   userId,
 }: RejectOptions): Promise<void> => {
@@ -15,8 +15,8 @@ const reject = async ({
   });
   await Promise.all(
     children.map((child) =>
-      reject({ targetId: child.targetId, userId }),
+      revoke({ targetId: child.targetId, userId }),
     ),
   );
 };
-export default reject;
+export default revoke;

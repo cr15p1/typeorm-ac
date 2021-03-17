@@ -1,4 +1,5 @@
 import { EntityRepository } from '@mikro-orm/core/entity/EntityRepository';
+import { ObjectId } from '@mikro-orm/mongodb';
 
 import {
   Arg,
@@ -9,6 +10,7 @@ import {
   Resolver,
 } from 'type-graphql';
 import User from '../entities/User.entity';
+import grantedIds from '../module/utils/grantedIds';
 import Repo from '../Repo';
 
 @InputType()
@@ -32,7 +34,8 @@ class Useresolver {
 
   @Query(() => [User])
   async users(): Promise<User[]> {
-    return await this.userRepository.find({});
+    const ids = await grantedIds<ObjectId>(User);
+    return await this.userRepository.find({ _id: { $in: ids } });
   }
 
   @Mutation(() => User)

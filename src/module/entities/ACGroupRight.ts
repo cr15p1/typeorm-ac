@@ -4,14 +4,14 @@ import { ManyToOne } from '@mikro-orm/core/decorators/ManyToOne';
 import { OneToMany } from '@mikro-orm/core/decorators/OneToMany';
 import { PrimaryKey } from '@mikro-orm/core/decorators/PrimaryKey';
 import { Property } from '@mikro-orm/core/decorators/Property';
-import { Collection } from '@mikro-orm/core/entity/Collection';
-import { Cascade } from '@mikro-orm/core/enums';
+
+import { UserRight } from '../types';
 
 @Entity()
 @Unique({ properties: ['userId', 'targetId'] })
-class ACGroupRight {
+class ACGroupRight implements UserRight {
   @PrimaryKey({ nullable: true })
-  _id?: string;
+  _id!: string;
 
   @Property()
   target!: string;

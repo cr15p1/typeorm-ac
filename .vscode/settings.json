@@ -12,5 +12,8 @@
   ],
   "eslint.workingDirectories": ["./src"],
   "eslint.format.enable": true,
-  "editor.tabSize": 2
+  "editor.tabSize": 2,
+  "cSpell.words": [
+    "rbac"
+  ]
 }

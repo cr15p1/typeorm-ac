@@ -8,15 +8,16 @@ import { Property } from '@mikro-orm/core/decorators/Property';
 import ACGroup from '../module/decorators/ACGroup';
 import { AccessControl } from 'accesscontrol';
 
-const ac = new AccessControl();
+const access = new AccessControl();
 
-const access = ac
-  .grant('User') // define new or modify existing role. also takes an array.
-  .deleteOwn('User')
-  .grant('Admin') // switch to another role without breaking the chain
-  .extend('User') // inherit role capabilities. also takes an array
-  .updateAny('User') // explicitly defined attributes
-  .deleteAny('User');
+access
+  .grant('User')
+  .createOwn('User')
+  .readAny('User')
+  .grant('Owner')
+  .extend('User')
+  .updateOwn('User')
+  .deleteOwn('User');
 
 @Entity()
 @ObjectType()
@@ -30,7 +31,7 @@ class User {
   @Property()
   firstName!: string;
 
-  @OneToMany(() => Post, (post) => post.user)
+  @OneToMany(() => Post, (post) => post.user, { orphanRemoval: true })
   posts!: Post[];
 }
 
