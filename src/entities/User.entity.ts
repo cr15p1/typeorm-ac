@@ -11,11 +11,11 @@ import { AccessControl } from 'accesscontrol';
 const access = new AccessControl();
 
 access
-  .grant('User')
+  .grant('EntityUser')
   .createOwn('User')
   .readAny('User')
-  .grant('Owner')
-  .extend('User')
+  .grant('EntityOwner')
+  .extend('EntityUser')
   .updateOwn('User')
   .deleteOwn('User');
 
