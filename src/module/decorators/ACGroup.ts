@@ -1,13 +1,10 @@
 import { MetadataStorage } from '@mikro-orm/core/metadata/MetadataStorage';
 import { AnyEntity } from '@mikro-orm/core/typings';
-import { addTarget } from '../metadata';
 import { getScopedStorage } from '../middleware';
 import { ACGroupOptions } from '../types';
 import grant from '../utils/grant';
-import userRole from '../utils/userRole';
 import revokeAll from '../utils/revokeAll';
-import validateAuthorization from '../utils/validateAuthorization';
-import { AccessControl, Query } from 'accesscontrol';
+import { AccessControl } from 'accesscontrol';
 
 const findId = (
   target: Record<string, unknown>,
@@ -135,10 +132,18 @@ export const ACGroup = ({
               parentTarget,
               childOf?.primaryKey,
             );
-            await validateAuthorization.create(
-              parentTarget,
-              parentId,
-            );
+            const can = checkPermission({
+              targetId: parentId,
+              targetName: parentTarget.name,
+              access,
+              checks: ['createOwn', 'createAny'],
+            });
+            console.log(can);
+            if (can) {
+              throw new Error(
+                `user hast no read access to the entity ${parentTarget.name} with the id ${parentId}`,
+              );
+            }
           }
         };
       },
@@ -212,7 +217,7 @@ export const ACGroup = ({
           );
 
           await grant({
-            role: 'EntityOwner',
+            role: getScopedStorage().entityOwner,
             target: target.name,
             userId: await getScopedStorage().userId,
             targetId: findId(this, primaryKey),

@@ -32,7 +32,7 @@ const app = express();
     middleware({
       userIdPath: 'req.user.id',
       userRolePath: 'req.user.role',
-      owner: 'Owner',
+      entityOwner: 'EntityOwner',
     }),
   );
 

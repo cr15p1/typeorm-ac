@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`middleware original mikro-orm init override should add the middleware entities to mikro-orm options 1`] = `
+Array [
+  Object {
+    "entities": Array [
+      "/Users/christophspeck/dev/typeorm-ac/src/module/entities/*.js",
+    ],
+    "entitiesTs": Array [
+      "/Users/christophspeck/dev/typeorm-ac/src/module/entities/*.ts",
+    ],
+  },
+  undefined,
+]
+`;

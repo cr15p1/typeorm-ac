@@ -5,7 +5,7 @@ import { Request, Response } from 'express';
 export interface MiddlewareOptions {
   userIdPath: string;
   userRolePath: string;
-  owner: string;
+  entityOwner: string;
 }
 
 export interface Target {
@@ -35,11 +35,10 @@ export interface UserRight {
 export interface ScopedStorage {
   req: Request;
   res: Response;
-  owner: string;
+  entityOwner: string;
 
   userRights?: UserRight[];
   userId?: string | void;
-  rbac?: RBAC;
   userRole?: string | void;
 }
 
